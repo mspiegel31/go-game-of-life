@@ -1,8 +1,8 @@
 package main
 
 import (
-	"math/rand"
 	"fmt"
+	"math/rand"
 )
 
 type simulationParams struct {
@@ -11,18 +11,8 @@ type simulationParams struct {
 	renderDelay int
 }
 
-type coordinate struct {
-	i int
-	j int
-}
-
-type cell struct {
-	data     int
-	location coordinate
-	neigbors []coordinate
-}
-
 var DEFAULTS simulationParams = simulationParams{500, 30, 100}
+var MARGIN int = 6
 
 func NewSimulationParams(args ...int) simulationParams {
 	if len(args) == 1 {
@@ -41,35 +31,28 @@ func NewSimulationParams(args ...int) simulationParams {
 func runSimulation(params simulationParams) {
 	fmt.Printf("running simulation with params %#v", params)
 	board := initBoard(params.boardSize)
-	printBoard(board)
+	board.print()
 }
 
-func initBoard(size int) [][]cell {
-	getRandomInt := func() int { return rand.Intn(2) }
-	board := make([][]cell, size)
-	for i := range board {
-		board[i] = make([]cell, size)
-		for j := range board[i] {
+func initBoard(size int) board {
+	state := make([][]cell, size)
+	for i := range state {
+		state[i] = make([]cell, size)
+		for j := range state[i] {
 			location := coordinate{i, j}
 			neighbors := identifyNeighbors(location, size)
-			board[i][j] = cell{getRandomInt(), location, neighbors}
+			state[i][j] = cell{rand.Intn(2), location, neighbors}
 		}
 	}
-	return board
+	return board{size, size - MARGIN, state}
 }
 
 func identifyNeighbors(loc coordinate, size int) []coordinate {
-	return nil
-}
-
-
-func printBoard(board [][]cell) {
-	dataOnly:= make([][]int, len(board))
-	for i := range board {
-		for j:= range board[i] {
-			//FIXME: this is printing pointer values.  
-			dataOnly[i][j] = board[i][j].data
+	neighbors := make([]coordinate, size)
+	for i := -1; i < 2; i++ {
+		for j := -1; j < 2; j++ {
+			//TODO: implement me!
 		}
 	}
-	fmt.Print(dataOnly)
+	return neighbors
 }

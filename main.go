@@ -26,7 +26,6 @@ func parseArgs(rawArgs []string) simulationParams {
 		args[i] = arg
 	}
 
-	//TODO: handle defaults
 	return NewSimulationParams(args...)
 }
 
