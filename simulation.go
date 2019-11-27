@@ -36,23 +36,15 @@ func runSimulation(params simulationParams) {
 
 func initBoard(size int) board {
 	state := make([][]cell, size)
+	board := board{size, size-MARGIN, state}
 	for i := range state {
 		state[i] = make([]cell, size)
 		for j := range state[i] {
 			location := coordinate{i, j}
-			neighbors := identifyNeighbors(location, size)
-			state[i][j] = cell{rand.Intn(2), location, neighbors}
+			neighbors := board.identifyNeighbors(location)
+			board.state[i][j] = cell{rand.Intn(2), location, neighbors}
 		}
 	}
-	return board{size, size - MARGIN, state}
+	return board
 }
 
-func identifyNeighbors(loc coordinate, size int) []coordinate {
-	neighbors := make([]coordinate, size)
-	for i := -1; i < 2; i++ {
-		for j := -1; j < 2; j++ {
-			//TODO: implement me!
-		}
-	}
-	return neighbors
-}

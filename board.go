@@ -11,9 +11,13 @@ type coordinate struct {
 	j int
 }
 
-func (c coordinate) inBounds(boardSize int) bool {
-	onBoard := func(p int) bool { return p >= 0 && p < boardSize }
-	return onBoard(c.i) && onBoard(c.j)
+func (c coordinate) add(i int, j int) coordinate {
+	return coordinate{c.i + i, c.j + j}
+}
+
+func (b board) inBounds(coord coordinate) bool {
+	onBoard := func(p int) bool { return p >= 0 && p < b.size }
+	return onBoard(coord.i) && onBoard(coord.j)
 }
 
 type cell struct {
@@ -36,6 +40,20 @@ type board struct {
 	state    [][]cell
 }
 
+func (b board) identifyNeighbors(coord coordinate) []coordinate {
+	neighbors := []coordinate{}
+	for i := -1; i < 2; i++ {
+		for j := -1; j < 2; j++ {
+			potentialNeighbor := coord.add(i, j)
+			if b.inBounds(potentialNeighbor) && potentialNeighbor != coord {
+				neighbors = append(neighbors, potentialNeighbor)
+			}
+		}
+	}
+	return neighbors
+}
+
+
 func (b board) print() {
 	dataOnly := make([]string, b.size)
 	for i := 0; i < b.size; i++ {
@@ -53,5 +71,5 @@ func makeBlack(str string) string {
 }
 
 func makeYellow(str string) string {
-	return "\u001b[33m" + str + "\u001b[39m";
-  }
+	return "\u001b[33m" + str + "\u001b[39m"
+}
