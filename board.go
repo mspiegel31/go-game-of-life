@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"fmt"
 	"strconv"
 )
@@ -36,17 +37,15 @@ type board struct {
 }
 
 func (b board) print() {
-	// FIXME: board is rectangular, not square
-	dataOnly := ""
+	dataOnly := make([]string, b.size)
 	for i := 0; i < b.size; i++ {
-		row := ""
+		row := make([]string, b.size)
 		for j := 0; j < b.size; j++ {
-			row += b.state[i][j].getPrintable()
+			row[j] = b.state[i][j].getPrintable()
 		}
-		row += "\n"
-		dataOnly += row
+		dataOnly[i] = strings.Join(row, " ")
 	}
-	fmt.Print(dataOnly)
+	fmt.Print(strings.Join(dataOnly, "\n"))
 }
 
 func makeBlack(str string) string {
