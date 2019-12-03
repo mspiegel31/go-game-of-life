@@ -1,10 +1,15 @@
 package main
 
+// TODO: refactor for better code organization
+// TODO: add convenience method for applying function to every cell
+
 import (
-	"strings"
 	"fmt"
 	"strconv"
+	"strings"
 )
+
+type operator func(currCell cell) cell
 
 type coordinate struct {
 	i int
@@ -15,15 +20,32 @@ func (c coordinate) add(i int, j int) coordinate {
 	return coordinate{c.i + i, c.j + j}
 }
 
-func (b board) inBounds(coord coordinate) bool {
-	onBoard := func(p int) bool { return p >= 0 && p < b.size }
-	return onBoard(coord.i) && onBoard(coord.j)
-}
 
 type cell struct {
 	data      int
 	location  coordinate
 	neighbors []coordinate
+}
+
+func (c cell) nextState(numAliveNeigbors int) cell {
+	isAlive := c.data == 1
+
+	// Any live cell with more than three live neighbours dies, as if by overpopulation.
+	if isAlive && numAliveNeigbors > 3 {
+		return cell{0, c.location, c.neighbors}
+	}
+
+	// Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+	if isAlive && numAliveNeigbors < 2 {
+		return cell{0, c.location, c.neighbors}
+	}
+	// Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+	if !isAlive && numAliveNeigbors == 3 {
+		return cell{1, c.location, c.neighbors}
+	}
+
+	// Any live cell with two or three live neighbours lives on to the next generation.
+	return c
 }
 
 func (c cell) getPrintable() string {
@@ -34,13 +56,40 @@ func (c cell) getPrintable() string {
 	return makeBlack(stringified)
 }
 
-type board struct {
+type gameBoard struct {
 	size     int
 	viewport int
 	state    [][]cell
 }
 
-func (b board) identifyNeighbors(coord coordinate) []coordinate {
+func (board gameBoard) updateCells(function operator) {
+	for i := 0; i < board.size; i++ {
+		for j := 0; j < board.size; j++ {
+			currentCell := board.state[i][j]
+			board.state[i][j] = function(currentCell)
+		}
+	}
+}
+
+func (board gameBoard) nextBoard() gameBoard {
+	nextState := make([][]cell, board.size)
+	for i := 0; i < board.size; i++ {
+		row := make([]cell, board.size)
+		for j := 0; j < board.size; j++ {
+			cell := board.getCell(i, j)
+			numAlive := 0
+			for _, neigbor := range cell.neighbors {
+				numAlive += board.getCell(neigbor.i, neigbor.j).data
+			}
+			row[j] = cell.nextState(numAlive)
+		}
+		nextState[i] = row
+	}
+	board.state = nextState
+	return board
+}
+
+func (b gameBoard) identifyNeighbors(coord coordinate) []coordinate {
 	neighbors := []coordinate{}
 	for i := -1; i < 2; i++ {
 		for j := -1; j < 2; j++ {
@@ -53,8 +102,7 @@ func (b board) identifyNeighbors(coord coordinate) []coordinate {
 	return neighbors
 }
 
-
-func (b board) print() {
+func (b gameBoard) print() {
 	dataOnly := make([]string, b.size)
 	for i := 0; i < b.size; i++ {
 		row := make([]string, b.size)
@@ -64,6 +112,15 @@ func (b board) print() {
 		dataOnly[i] = strings.Join(row, " ")
 	}
 	fmt.Print(strings.Join(dataOnly, "\n"))
+}
+
+func (b gameBoard) inBounds(coord coordinate) bool {
+	onBoard := func(p int) bool { return p >= 0 && p < b.size }
+	return onBoard(coord.i) && onBoard(coord.j)
+}
+
+func (b gameBoard) getCell(i int, j int) cell {
+	return b.state[i][j]
 }
 
 func makeBlack(str string) string {

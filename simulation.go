@@ -1,6 +1,9 @@
 package main
 
 import (
+	"time"
+	"os"
+	"os/exec"
 	"fmt"
 	"math/rand"
 )
@@ -11,7 +14,7 @@ type simulationParams struct {
 	renderDelay int
 }
 
-var DEFAULTS simulationParams = simulationParams{500, 30, 100}
+var DEFAULTS simulationParams = simulationParams{500, 30, 70}
 var MARGIN int = 6
 
 func NewSimulationParams(args ...int) simulationParams {
@@ -29,14 +32,24 @@ func NewSimulationParams(args ...int) simulationParams {
 }
 
 func runSimulation(params simulationParams) {
-	fmt.Printf("running simulation with params %#v", params)
+	fmt.Printf("running simulation with params %#v \n", params)
 	board := initBoard(params.boardSize)
 	board.print()
+	
+
+	for index := 0; index < params.ticks; index++ {
+		time.Sleep(time.Duration(params.renderDelay) * time.Millisecond)
+		clearScreen()		
+		fmt.Printf("running simulation with params %#v \n", params)
+		board = board.nextBoard()
+		board.print()
+	}
+
 }
 
-func initBoard(size int) board {
+func initBoard(size int) gameBoard {
 	state := make([][]cell, size)
-	board := board{size, size-MARGIN, state}
+	board := gameBoard{size, size - MARGIN, state}
 	for i := range state {
 		state[i] = make([]cell, size)
 		for j := range state[i] {
@@ -48,3 +61,8 @@ func initBoard(size int) board {
 	return board
 }
 
+func clearScreen() {
+	c := exec.Command("clear")
+    c.Stdout = os.Stdout
+    c.Run()
+}
