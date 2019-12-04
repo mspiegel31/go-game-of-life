@@ -62,64 +62,29 @@ func (c cell) getPrintable() string {
 }
 
 type gameBoard struct {
-	size     int
 	viewport int
 	state    [][]cell
 }
 
-func (board gameBoard) apply(function cellMapper) gameBoard {
-	newState := make([][]cell, board.size)
-	for i := 0; i < board.size; i++ {
-		row := make([]cell, board.size)
-		for j := 0; j < board.size; j++ {
-			currentCell := board.state[i][j]
-			row[j] = function(currentCell)
-		}
-		newState[i] = row
-	}
-
-	return gameBoard{board.size, board.viewport, newState}
-}
-
 func (board gameBoard) nextBoard() gameBoard {
-	return board.apply(func(c cell) cell {
-		numAlive := 0
-		for _, neighbor := range c.neighbors {
-			numAlive += board.getCell(neighbor).data
-		}
-		return c.nextState(numAlive)
-	})
+	return board
 }
 
 func (board gameBoard) identifyNeighbors(coord coordinate) []coordinate {
 	neighbors := []coordinate{}
-	for i := -1; i < 2; i++ {
-		for j := -1; j < 2; j++ {
-			potentialNeighbor := coord.add(i, j)
-			if board.inBounds(potentialNeighbor) && potentialNeighbor != coord {
-				neighbors = append(neighbors, potentialNeighbor)
-			}
-		}
-	}
 	return neighbors
 }
 
 func (board gameBoard) print() {
-	//TODO: print viewport only
-	dataOnly := make([]string, board.size)
-	for i := 0; i < board.size; i++ {
-		row := make([]string, board.size)
-		for j := 0; j < board.size; j++ {
+	dataOnly := make([]string, board.viewport)
+	for i := 0; i < board.viewport; i++ {
+		row := make([]string, board.viewport)
+		for j := 0; j < board.viewport; j++ {
 			row[j] = board.state[i][j].getPrintable()
 		}
 		dataOnly[i] = strings.Join(row, " ")
 	}
 	fmt.Print(strings.Join(dataOnly, "\n") + "\r")
-}
-
-func (board gameBoard) inBounds(coord coordinate) bool {
-	onBoard := func(p int) bool { return p >= 0 && p < board.size }
-	return onBoard(coord.i) && onBoard(coord.j)
 }
 
 func (board gameBoard) getCell(coord coordinate) cell {

@@ -13,7 +13,6 @@ type simulationParams struct {
 }
 
 var DEFAULTS simulationParams = simulationParams{500, 30, 70}
-var MARGIN int = 6
 
 func NewSimulationParams(args ...int) simulationParams {
 	if len(args) == 1 {
@@ -44,7 +43,7 @@ func runSimulation(params simulationParams) {
 
 func initBoard(size int) gameBoard {
 	state := make([][]cell, size)
-	board := gameBoard{size, size - MARGIN, state}
+	board := gameBoard{size, state}
 	for i := range state {
 		state[i] = make([]cell, size)
 		for j := range state[i] {
