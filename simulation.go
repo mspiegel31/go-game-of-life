@@ -1,11 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"github.com/mike/go-game-of-life/board"
 	"os"
 	"os/exec"
-	"fmt"
 	"time"
-	"github.com/mike/go-game-of-life/board"
 )
 
 type simulationParams struct {
@@ -37,8 +37,8 @@ func runSimulation(params simulationParams) {
 
 	for index := 0; index < params.ticks; index++ {
 		time.Sleep(time.Duration(params.renderDelay) * time.Millisecond)
-		board = board.NextBoard()
 		clearScreen()
+		board.NextState()
 		board.Print()
 	}
 
@@ -46,6 +46,6 @@ func runSimulation(params simulationParams) {
 
 func clearScreen() {
 	c := exec.Command("clear")
-    c.Stdout = os.Stdout
-    c.Run()
+	c.Stdout = os.Stdout
+	c.Run()
 }

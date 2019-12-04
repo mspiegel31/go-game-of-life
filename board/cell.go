@@ -13,37 +13,36 @@ func (c coordinate) add(i int, j int) coordinate {
 	return coordinate{c.i + i, c.j + j}
 }
 
-type cell struct {
-	data int
-}
+
+type cell int
 
 func (c cell) isAlive() bool {
-	return c.data == 1
+	return c == 1
 }
 
 func (c cell) getPrintable() string {
-	stringified := strconv.Itoa(c.data)
-	if c.data == 1 {
+	stringified := strconv.Itoa(int(c))
+	if c == 1 {
 		return makeYellow(stringified)
 	}
 	return makeBlack(stringified)
 }
 
 func (c cell) nextState(numAliveNeigbors int) cell {
-	isAlive := c.data == 1
+	isAlive := c == 1
 
 	// Any live cell with more than three live neighbours dies, as if by overpopulation.
 	if isAlive && numAliveNeigbors > 3 {
-		return cell{0}
+		return 0
 	}
 
 	// Any live cell with fewer than two live neighbours dies, as if by underpopulation.
 	if isAlive && numAliveNeigbors < 2 {
-		return cell{0}
+		return 0
 	}
 	// Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 	if !isAlive && numAliveNeigbors == 3 {
-		return cell{1}
+		return 1
 	}
 
 	// Any live cell with two or three live neighbours lives on to the next generation.
