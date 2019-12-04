@@ -1,9 +1,9 @@
 package main
 
 import (
-	"time"
 	"fmt"
 	"math/rand"
+	"time"
 )
 
 type simulationParams struct {
@@ -32,7 +32,7 @@ func runSimulation(params simulationParams) {
 	fmt.Printf("running simulation with params %#v \n", params)
 	board := initBoard(params.boardSize)
 	board.print()
-	
+
 	for index := 0; index < params.ticks; index++ {
 		time.Sleep(time.Duration(params.renderDelay) * time.Millisecond)
 		board = board.nextBoard()
@@ -42,15 +42,20 @@ func runSimulation(params simulationParams) {
 }
 
 func initBoard(size int) gameBoard {
-	state := make([][]cell, size)
-	board := gameBoard{size, state}
-	for i := range state {
-		state[i] = make([]cell, size)
-		for j := range state[i] {
-			location := coordinate{i, j}
-			neighbors := board.identifyNeighbors(location)
-			board.state[i][j] = cell{rand.Intn(2), location, neighbors}
+	anchor := coordinate{50, 50}
+	aliveCells := make(map[coordinate]cell)
+	board := gameBoard{anchor, size, aliveCells}
+
+	// seed values in viewport randomly
+	for i := anchor.i; i < anchor.i+size; i++ {
+		for j := anchor.j; j < anchor.j+size; j++ {
+			data := rand.Intn(2)
+			if data == 1 {
+				location := coordinate{i, j}
+				aliveCells[location] = cell{data}
+			}
 		}
 	}
+	fmt.Print(aliveCells)
 	return board
 }

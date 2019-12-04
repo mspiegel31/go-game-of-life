@@ -1,8 +1,8 @@
 package main
 
 // TODO: refactor for better code organization
-	// export gameboard et al.
-	// break cells and boards into separate modules?
+// export gameboard et al.
+// break cells and boards into separate modules?
 
 // TODO: tests :)
 // TODO: smooth out drawing; redraw changes only
@@ -12,10 +12,7 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
-
-type cellMapper func(currCell cell) cell
 
 type coordinate struct {
 	i int
@@ -28,29 +25,6 @@ func (c coordinate) add(i int, j int) coordinate {
 
 type cell struct {
 	data      int
-	location  coordinate
-	neighbors []coordinate
-}
-
-func (c cell) nextState(numAliveNeigbors int) cell {
-	isAlive := c.data == 1
-
-	// Any live cell with more than three live neighbours dies, as if by overpopulation.
-	if isAlive && numAliveNeigbors > 3 {
-		return cell{0, c.location, c.neighbors}
-	}
-
-	// Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-	if isAlive && numAliveNeigbors < 2 {
-		return cell{0, c.location, c.neighbors}
-	}
-	// Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-	if !isAlive && numAliveNeigbors == 3 {
-		return cell{1, c.location, c.neighbors}
-	}
-
-	// Any live cell with two or three live neighbours lives on to the next generation.
-	return c
 }
 
 func (c cell) getPrintable() string {
@@ -61,9 +35,33 @@ func (c cell) getPrintable() string {
 	return makeBlack(stringified)
 }
 
+func (c cell) nextState(numAliveNeigbors int) cell {
+	isAlive := c.data == 1
+
+	// Any live cell with more than three live neighbours dies, as if by overpopulation.
+	if isAlive && numAliveNeigbors > 3 {
+		return cell{0}
+	}
+
+	// Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+	if isAlive && numAliveNeigbors < 2 {
+		return cell{0}
+	}
+	// Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+	if !isAlive && numAliveNeigbors == 3 {
+		return cell{1}
+	}
+
+	// Any live cell with two or three live neighbours lives on to the next generation.
+	return c
+}
+
+
+
 type gameBoard struct {
-	viewport int
-	state    [][]cell
+	viewAnchor coordinate
+	viewport   int
+	aliveCells map[coordinate]cell
 }
 
 func (board gameBoard) nextBoard() gameBoard {
@@ -72,23 +70,21 @@ func (board gameBoard) nextBoard() gameBoard {
 
 func (board gameBoard) identifyNeighbors(coord coordinate) []coordinate {
 	neighbors := []coordinate{}
+	for i := -1; i < 2; i++ {
+		for j := -1; j < 2; j++ {
+			neighbor := coord.add(i, j)
+			if neighbor != coord {
+				neighbors = append(neighbors, neighbor)
+			}
+		}
+	}
 	return neighbors
 }
 
 func (board gameBoard) print() {
-	dataOnly := make([]string, board.viewport)
-	for i := 0; i < board.viewport; i++ {
-		row := make([]string, board.viewport)
-		for j := 0; j < board.viewport; j++ {
-			row[j] = board.state[i][j].getPrintable()
-		}
-		dataOnly[i] = strings.Join(row, " ")
-	}
-	fmt.Print(strings.Join(dataOnly, "\n") + "\r")
-}
-
-func (board gameBoard) getCell(coord coordinate) cell {
-	return board.state[coord.i][coord.j]
+	// TODO: move cursor to changed cell only
+	// TODO:  diff changed cell somehow?
+	fmt.Print("implement me!")
 }
 
 func makeBlack(str string) string {
