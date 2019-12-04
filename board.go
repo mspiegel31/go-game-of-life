@@ -10,9 +10,9 @@ package main
 // TODO:completely re-implement with sparse arrays :)
 
 import (
-	"strings"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type coordinate struct {
@@ -26,6 +26,10 @@ func (c coordinate) add(i int, j int) coordinate {
 
 type cell struct {
 	data int
+}
+
+func (c cell) isAlive() bool {
+	return c.data == 1
 }
 
 func (c cell) getPrintable() string {
@@ -63,32 +67,59 @@ type gameBoard struct {
 	aliveCells map[coordinate]cell
 }
 
-func (board gameBoard) nextBoard() gameBoard {
+func (board gameBoard) getCell(location coordinate) cell {
+	return board.aliveCells[location]
+}
+
+func (board gameBoard) getNextCell(location coordinate) cell {
+	neighbors := board.identifyNeighbors(location)
+	numAliveNeighbors := 0
+	for _, neighborLocation := range neighbors {
+		neighbor := board.aliveCells[neighborLocation]
+		numAliveNeighbors += neighbor.data
+	}
+
+	return board.getCell(location).nextState(numAliveNeighbors)
+}
+
+func (board gameBoard) identifyUpdates() map[coordinate]cell {
 	updates := make(map[coordinate]cell)
-	//FIXME:  this is only killing alive cells, not birthing new ones
+
 	for location, currentCell := range board.aliveCells {
-		neighbors := board.identifyNeighbors(location)
-		numAliveNeighbors := 0
-		for _, neighbor := range neighbors {
-			numAliveNeighbors += board.aliveCells[neighbor].data
-			//TODO: also need to check the neighbor locations
-		}
-		
-		nextCell := currentCell.nextState(numAliveNeighbors)
+		nextCell := board.getNextCell(location)
 		if (nextCell != currentCell) {
 			updates[location] = nextCell
 		}
+
+		neighbors := board.identifyNeighbors(location)
+		for _, neighborLocation := range neighbors {
+			candidateCell := board.getCell(neighborLocation)
+			if (!candidateCell.isAlive()) {
+				nextCell := board.getNextCell(neighborLocation)
+				if (nextCell != candidateCell) {
+					updates[location] = nextCell
+				}
+			}
+		}
 	}
-	// apply updates
+	return updates
+}
+
+func (board gameBoard) applyUpdates(updates map[coordinate]cell) gameBoard {
 	for location, nextCell := range updates {
-		if (nextCell.data == 0) {
+		if (!nextCell.isAlive()) {
 			delete(board.aliveCells, location)
 		} else {
 			board.aliveCells[location] = nextCell
 		}
 	}
 
-	return board
+	return gameBoard{board.viewAnchor, board.viewport, board.aliveCells}
+}
+
+func (board gameBoard) nextBoard() gameBoard {
+	updates := board.identifyUpdates()
+	return board.applyUpdates(updates)
 }
 
 func (board gameBoard) identifyNeighbors(coord coordinate) []coordinate {
