@@ -5,6 +5,9 @@ package main
 	// break cells and boards into separate modules?
 
 // TODO: tests :)
+// TODO: smooth out drawing; redraw changes only
+// TODO: memoize cell state; only recompute on change
+// TODO:completely re-implement with sparse arrays :)
 
 import (
 	"fmt"
@@ -111,7 +114,7 @@ func (board gameBoard) print() {
 		}
 		dataOnly[i] = strings.Join(row, " ")
 	}
-	fmt.Print(strings.Join(dataOnly, "\n"))
+	fmt.Print(strings.Join(dataOnly, "\n") + "\r")
 }
 
 func (board gameBoard) inBounds(coord coordinate) bool {
