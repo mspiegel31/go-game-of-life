@@ -56,6 +56,5 @@ func initBoard(size int) gameBoard {
 			}
 		}
 	}
-	fmt.Print(aliveCells)
 	return board
 }

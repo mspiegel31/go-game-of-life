@@ -10,6 +10,7 @@ package main
 // TODO:completely re-implement with sparse arrays :)
 
 import (
+	"strings"
 	"fmt"
 	"strconv"
 )
@@ -24,7 +25,7 @@ func (c coordinate) add(i int, j int) coordinate {
 }
 
 type cell struct {
-	data      int
+	data int
 }
 
 func (c cell) getPrintable() string {
@@ -56,8 +57,6 @@ func (c cell) nextState(numAliveNeigbors int) cell {
 	return c
 }
 
-
-
 type gameBoard struct {
 	viewAnchor coordinate
 	viewport   int
@@ -84,7 +83,20 @@ func (board gameBoard) identifyNeighbors(coord coordinate) []coordinate {
 func (board gameBoard) print() {
 	// TODO: move cursor to changed cell only
 	// TODO:  diff changed cell somehow?
-	fmt.Print("implement me!")
+	printable := make([]string, board.viewport)
+	printerIdx := 0
+	for i := board.viewAnchor.i; i < board.viewAnchor.i+board.viewport; i++ {
+		row := []string{}
+		for j := board.viewAnchor.j; j < board.viewAnchor.j+board.viewport; j++ {
+			location := coordinate{i, j}
+			val := board.aliveCells[location]
+			row = append(row, val.getPrintable())
+		}
+		printable[printerIdx] = strings.Join(row, " ")
+		printerIdx += 1
+	}
+	//FIXME:  this is re-printing instead of overwriting
+	fmt.Print(strings.Join(printable, "\n") + "\r")
 }
 
 func makeBlack(str string) string {
