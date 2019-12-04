@@ -4,8 +4,8 @@ import (
 	"os"
 	"os/exec"
 	"fmt"
-	"math/rand"
 	"time"
+	"github.com/mike/go-game-of-life/board"
 )
 
 type simulationParams struct {
@@ -32,34 +32,16 @@ func NewSimulationParams(args ...int) simulationParams {
 
 func runSimulation(params simulationParams) {
 	fmt.Printf("running simulation with params %#v \n", params)
-	board := initBoard(params.boardSize)
-	board.print()
+	board := board.Init(params.boardSize)
+	board.Print()
 
 	for index := 0; index < params.ticks; index++ {
 		time.Sleep(time.Duration(params.renderDelay) * time.Millisecond)
-		board = board.nextBoard()
+		board = board.NextBoard()
 		clearScreen()
-		board.print()
+		board.Print()
 	}
 
-}
-
-func initBoard(size int) gameBoard {
-	anchor := coordinate{50, 50}
-	aliveCells := make(map[coordinate]cell)
-	board := gameBoard{anchor, size, aliveCells}
-
-	// seed values in viewport randomly
-	for i := anchor.i; i < anchor.i+size; i++ {
-		for j := anchor.j; j < anchor.j+size; j++ {
-			data := rand.Intn(2)
-			if data == 1 {
-				location := coordinate{i, j}
-				aliveCells[location] = cell{data}
-			}
-		}
-	}
-	return board
 }
 
 func clearScreen() {
