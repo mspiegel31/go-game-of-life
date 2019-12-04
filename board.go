@@ -64,6 +64,28 @@ type gameBoard struct {
 }
 
 func (board gameBoard) nextBoard() gameBoard {
+	updates := make(map[coordinate]cell)
+	for location, currentCell := range board.aliveCells {
+		neighbors := board.identifyNeighbors(location)
+		numAliveNeighbors := 0
+		for _, neighbor := range neighbors {
+			numAliveNeighbors += board.aliveCells[neighbor].data
+		}
+		
+		nextCell := currentCell.nextState(numAliveNeighbors)
+		if (nextCell != currentCell) {
+			updates[location] = nextCell
+		}
+	}
+	// apply updates
+	for location, nextCell := range updates {
+		if (nextCell.data == 0) {
+			delete(board.aliveCells, location)
+		} else {
+			board.aliveCells[location] = nextCell
+		}
+	}
+
 	return board
 }
 
