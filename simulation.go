@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"os/exec"
 	"fmt"
 	"math/rand"
 	"time"
@@ -36,6 +38,7 @@ func runSimulation(params simulationParams) {
 	for index := 0; index < params.ticks; index++ {
 		time.Sleep(time.Duration(params.renderDelay) * time.Millisecond)
 		board = board.nextBoard()
+		clearScreen()
 		board.print()
 	}
 
@@ -57,4 +60,10 @@ func initBoard(size int) gameBoard {
 		}
 	}
 	return board
+}
+
+func clearScreen() {
+	c := exec.Command("clear")
+    c.Stdout = os.Stdout
+    c.Run()
 }
