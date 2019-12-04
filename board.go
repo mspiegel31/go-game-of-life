@@ -65,11 +65,13 @@ type gameBoard struct {
 
 func (board gameBoard) nextBoard() gameBoard {
 	updates := make(map[coordinate]cell)
+	//FIXME:  this is only killing alive cells, not birthing new ones
 	for location, currentCell := range board.aliveCells {
 		neighbors := board.identifyNeighbors(location)
 		numAliveNeighbors := 0
 		for _, neighbor := range neighbors {
 			numAliveNeighbors += board.aliveCells[neighbor].data
+			//TODO: also need to check the neighbor locations
 		}
 		
 		nextCell := currentCell.nextState(numAliveNeighbors)
@@ -115,7 +117,7 @@ func (board gameBoard) print() {
 			row = append(row, val.getPrintable())
 		}
 		printable[printerIdx] = strings.Join(row, " ")
-		printerIdx += 1
+		printerIdx++
 	}
 	//FIXME:  this is re-printing instead of overwriting
 	fmt.Print(strings.Join(printable, "\n") + "\r")
