@@ -4,15 +4,6 @@ import (
 	"strconv"
 )
 
-type coordinate struct {
-	i int
-	j int
-}
-
-func (c coordinate) add(i int, j int) coordinate {
-	return coordinate{c.i + i, c.j + j}
-}
-
 type cell int
 
 func (c cell) isAlive() bool {
@@ -54,4 +45,14 @@ func makeBlack(str string) string {
 
 func makeYellow(str string) string {
 	return "\u001b[33m" + str + "\u001b[39m"
+}
+
+
+type coordinate struct {
+	i int
+	j int
+}
+
+func (c coordinate) add(i int, j int) coordinate {
+	return coordinate{c.i + i, c.j + j}
 }

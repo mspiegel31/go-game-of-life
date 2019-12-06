@@ -24,15 +24,13 @@ func Init(size int) GameBoard {
 	// seed values in viewport randomly
 	for i := anchor.i; i < anchor.i+size; i++ {
 		for j := anchor.j; j < anchor.j+size; j++ {
-			data := rand.Intn(2)
-			if data == 1 {
+			if state := rand.Intn(2); state == 1 {
 				location := coordinate{i, j}
-				aliveCells[location] = cell(data)
+				aliveCells[location] = cell(state)
 			}
 		}
 	}
 	return board
-
 }
 
 func (board *GameBoard) NextState() {
@@ -48,14 +46,15 @@ func (board *GameBoard) Print() {
 	for i := board.viewAnchor.i; i < board.viewAnchor.i+board.viewport; i++ {
 		row := []string{}
 		for j := board.viewAnchor.j; j < board.viewAnchor.j+board.viewport; j++ {
-			val := board.getCell(coordinate{i, j})
-			row = append(row, val.getPrintable())
+			cell := board.getCell(coordinate{i, j})
+			row = append(row, cell.getPrintable())
 		}
 		printable[printerIdx] = strings.Join(row, " ")
 		printerIdx++
 	}
 	//FIXME:  this is re-printing instead of overwriting
-	fmt.Print(strings.Join(printable, "\n") + "\r")
+	fmt.Print(strings.Join(printable, "\n") + "\r\n")
+	fmt.Printf("# alive cells: %d", len(board.aliveCells))
 }
 
 func (board *GameBoard) getCell(location coordinate) cell {
@@ -63,9 +62,8 @@ func (board *GameBoard) getCell(location coordinate) cell {
 }
 
 func (board *GameBoard) getNextCell(location coordinate) cell {
-	neighbors := board.identifyNeighbors(location)
 	numAliveNeighbors := 0
-	for _, neighborLocation := range neighbors {
+	for _, neighborLocation := range board.identifyNeighbors(location) {
 		neighbor := board.getCell(neighborLocation)
 		numAliveNeighbors += int(neighbor)
 	}
@@ -77,21 +75,17 @@ func (board *GameBoard) identifyUpdates() map[coordinate]cell {
 	updates := make(map[coordinate]cell)
 
 	for location, currentCell := range board.aliveCells {
-		nextCell := board.getNextCell(location)
-		
 		// save us a write
-		if currentCell != nextCell {
+		if nextCell := board.getNextCell(location); currentCell != nextCell {
 			updates[location] = nextCell
-
 		}
 
-		neighbors := board.identifyNeighbors(location)
-		for _, neighborLocation := range neighbors {
+		for _, neighborLocation := range board.identifyNeighbors(location) {
 			candidateCell := board.getCell(neighborLocation)
 			nextCell := board.getNextCell(neighborLocation)
-			
-			//save us a write
-			if nextCell != candidateCell {
+
+			//check dead neighbors only;  we'll get the live ones before the loop is done
+			if !candidateCell.isAlive() && nextCell != candidateCell {
 				updates[neighborLocation] = nextCell
 			}
 		}
