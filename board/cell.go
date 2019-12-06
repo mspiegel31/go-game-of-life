@@ -13,7 +13,6 @@ func (c coordinate) add(i int, j int) coordinate {
 	return coordinate{c.i + i, c.j + j}
 }
 
-
 type cell int
 
 func (c cell) isAlive() bool {

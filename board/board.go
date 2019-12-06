@@ -1,13 +1,8 @@
 package board
 
-// TODO: refactor for better code organization
-// export GameBoard et al.
-// break cells and boards into separate modules?
-
 // TODO: tests :)
 // TODO: smooth out drawing; redraw changes only
 // TODO: memoize cell state; only recompute on change
-// TODO:completely re-implement with sparse arrays :)
 
 import (
 	"fmt"
@@ -52,7 +47,7 @@ func (board *GameBoard) Print() {
 	printerIdx := 0
 	for i := board.viewAnchor.i; i < board.viewAnchor.i+board.viewport; i++ {
 		row := []string{}
-		for j := board.viewAnchor.j; j < board.viewAnchor.j + board.viewport; j++ {
+		for j := board.viewAnchor.j; j < board.viewAnchor.j+board.viewport; j++ {
 			val := board.getCell(coordinate{i, j})
 			row = append(row, val.getPrintable())
 		}
@@ -80,22 +75,24 @@ func (board *GameBoard) getNextCell(location coordinate) cell {
 
 func (board *GameBoard) identifyUpdates() map[coordinate]cell {
 	updates := make(map[coordinate]cell)
-	
+
 	for location, currentCell := range board.aliveCells {
 		nextCell := board.getNextCell(location)
-		if nextCell != currentCell {
-			updates[location] = nextCell
-		}
 		
-		//FIXME: something about this logic is causing the updates to remain the same after a few iterations
+		// save us a write
+		if currentCell != nextCell {
+			updates[location] = nextCell
+
+		}
+
 		neighbors := board.identifyNeighbors(location)
 		for _, neighborLocation := range neighbors {
 			candidateCell := board.getCell(neighborLocation)
-			if !candidateCell.isAlive() {
-				nextCell := board.getNextCell(neighborLocation)
-				if nextCell != candidateCell {
-					updates[location] = nextCell
-				}
+			nextCell := board.getNextCell(neighborLocation)
+			
+			//save us a write
+			if nextCell != candidateCell {
+				updates[neighborLocation] = nextCell
 			}
 		}
 	}
