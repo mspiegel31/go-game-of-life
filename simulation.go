@@ -1,9 +1,11 @@
 package main
 
 import (
-	"time"
 	"fmt"
-	"math/rand"
+	"github.com/mike/go-game-of-life/board"
+	"os"
+	"os/exec"
+	"time"
 )
 
 type simulationParams struct {
@@ -13,7 +15,6 @@ type simulationParams struct {
 }
 
 var DEFAULTS simulationParams = simulationParams{500, 30, 70}
-var MARGIN int = 6
 
 func NewSimulationParams(args ...int) simulationParams {
 	if len(args) == 1 {
@@ -31,27 +32,20 @@ func NewSimulationParams(args ...int) simulationParams {
 
 func runSimulation(params simulationParams) {
 	fmt.Printf("running simulation with params %#v \n", params)
-	board := initBoard(params.boardSize)
-	board.print()
-	
+	board := board.Init(params.boardSize)
+	board.Print()
+
 	for index := 0; index < params.ticks; index++ {
 		time.Sleep(time.Duration(params.renderDelay) * time.Millisecond)
-		board = board.nextBoard()
-		board.print()
+		clearScreen()
+		board.NextState()
+		board.Print()
 	}
 
 }
 
-func initBoard(size int) gameBoard {
-	state := make([][]cell, size)
-	board := gameBoard{size, size - MARGIN, state}
-	for i := range state {
-		state[i] = make([]cell, size)
-		for j := range state[i] {
-			location := coordinate{i, j}
-			neighbors := board.identifyNeighbors(location)
-			board.state[i][j] = cell{rand.Intn(2), location, neighbors}
-		}
-	}
-	return board
+func clearScreen() {
+	c := exec.Command("clear")
+	c.Stdout = os.Stdout
+	c.Run()
 }
