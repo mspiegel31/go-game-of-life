@@ -1,6 +1,5 @@
 package board
 
-// TODO: tests :)
 // TODO: smooth out drawing; redraw changes only
 // TODO: memoize cell state; only recompute on change
 
