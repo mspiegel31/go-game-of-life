@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/mike/go-game-of-life/board"
+	"github.com/mspiegel31/go-game-of-life/board"
 	"os"
 	"os/exec"
 	"time"
