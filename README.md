@@ -1,5 +1,7 @@
 # Conways Game of Life
 
+[![asciicast](https://asciinema.org/a/318500.svg)](https://asciinema.org/a/318500)
+
 ## Rules
 (from [wikipedia](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules))
 The universe of the Game of Life is an infinite, two-dimensional orthogonal grid of square cells, each of which is in one of two possible states, alive or dead, (or populated and unpopulated, respectively). Every cell interacts with its eight neighbours, which are the cells that are horizontally, vertically, or diagonally adjacent. At each step in time, the following transitions occur:
