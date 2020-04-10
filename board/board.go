@@ -1,8 +1,5 @@
 package board
 
-// TODO: smooth out drawing; redraw changes only
-// TODO: memoize cell state; only recompute on change
-
 import (
 	"fmt"
 	"math/rand"
@@ -38,8 +35,6 @@ func (board *GameBoard) NextState() {
 }
 
 func (board *GameBoard) Print() {
-	// TODO: move cursor to changed cell only
-	// TODO:  diff changed cell somehow?
 	printable := make([]string, board.viewport)
 	printerIdx := 0
 	for i := board.viewAnchor.i; i < board.viewAnchor.i+board.viewport; i++ {
